@@ -15,6 +15,8 @@ This is a backup copy of the root `PROJECT_MEMORY.md`. Keep this file as a secon
 - Itch.io page: `https://tobide98.itch.io/practicemon`
 - Inferred Butler WebGL target: `tobide98/practicemon:html5`
 - Existing local WebGL output: `Build/`
+- Deployment rule: do not build this Unity project unless the user explicitly changes this rule. The user builds the project manually. Codex should only upload the already-built `Build/` folder to itch.io.
+- Current user-built WebGL output path: `C:\Users\tobid\OneDrive\Documents\MyWorkspace\MonGame\Build`
 
 ## Game Flow
 
@@ -60,9 +62,9 @@ Scene bindings in `SampleScene.unity` connect:
 ## Build And Upload Notes
 
 - C# build check: `dotnet build MonGame.sln --no-restore`
-- WebGL rebuild requires Unity. Close open Unity editor instances before batchmode building.
+- Deployment rule: never run Unity build commands for this project. The user is responsible for building. For itch.io updates, upload the existing `Build/` folder only.
 - Butler upload target for itch.io WebGL: `tobide98/practicemon:html5`
-- Upload command once `Build/` is ready:
+- Upload command after the user has built the project:
 
 ```powershell
 butler push Build tobide98/practicemon:html5

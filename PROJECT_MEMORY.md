@@ -13,7 +13,8 @@ Last refreshed: 2026-06-13
 - Itch.io page: `https://tobide98.itch.io/practicemon`
 - Inferred Butler upload target for WebGL: `tobide98/practicemon:html5`
 - Existing local WebGL build folder: `Build/`
-- Important deployment note: Unity batchmode rebuild was blocked on 2026-06-12 because the project was already open in a Unity editor instance. Close Unity before headless rebuilding.
+- Important deployment rule: do not build this Unity project unless the user explicitly changes this rule. The user builds the project manually. Codex should only upload the already-built `Build/` folder to itch.io.
+- Current user-built WebGL output path: `C:\Users\tobid\OneDrive\Documents\MyWorkspace\MonGame\Build`
 
 ## Current Game Shape
 
@@ -125,7 +126,7 @@ Namespace: `WhackAMole`
 - `ProjectSettings/EditorBuildSettings.asset` includes only `Assets/Scenes/SampleScene.unity`.
 - `ProjectSettings/ProjectSettings.asset` has WebGL configured with DOTWEEN scripting define.
 - C# syntax/build check used successfully: `dotnet build MonGame.sln --no-restore`.
-- A true WebGL rebuild should be done through Unity. If using batchmode, close any open Unity editor first.
+- Deployment rule: never run Unity build commands for this project. The user is responsible for building. For itch.io updates, upload the existing `Build/` folder only.
 - Existing Butler executable path found previously: `C:\Users\tobid\OneDrive\Documents\UserFolder\Butler\butler.exe`.
 - Butler credentials exist at `C:\Users\tobid\.config\itch\butler_creds`, but the API token does not permit listing games. Upload target should be provided or inferred from known itch page.
 
@@ -145,7 +146,7 @@ Build check:
 dotnet build MonGame.sln --no-restore
 ```
 
-Expected Butler upload command for WebGL once the latest `Build/` is ready:
+Expected Butler upload command for WebGL after the user has built the project:
 
 ```powershell
 butler push Build tobide98/practicemon:html5
