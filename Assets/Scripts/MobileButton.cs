@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using WhackAMole;
 
 public class MobileButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
@@ -10,6 +11,7 @@ public class MobileButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        GameManager.Instance?.PlaySFX(SFX.SFX_PositiveClick);
         SetPressed(true);
     }
 

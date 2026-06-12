@@ -95,9 +95,15 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        if (enemyMonster != null)
+        {
+            enemyMonster.Attack(playerMonster);
+            return;
+        }
+
         if (playerMonster != null)
         {
-            playerMonster.TakeDamage(enemyMonster != null ? enemyMonster.BaseAttack : 1);
+            playerMonster.TakeDamage(1);
         }
     }
 

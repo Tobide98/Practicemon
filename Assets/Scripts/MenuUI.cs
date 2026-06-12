@@ -2,6 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using WhackAMole;
 
 public class MenuUI : MonoBehaviour
 {
@@ -87,6 +88,7 @@ public class MenuUI : MonoBehaviour
             return;
         }
 
+        GameManager.Instance?.PlaySFX(SFX.SFX_PositiveClick);
         isStarting = true;
         gameManager.StartGameFromMenu();
     }
@@ -109,6 +111,7 @@ public class MenuUI : MonoBehaviour
         menuCanvasGroup.interactable = false;
         menuCanvasGroup.blocksRaycasts = false;
         menuTween = menuCanvasGroup.DOFade(0f, fadeOutDuration)
+            .From(1f)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
@@ -191,6 +194,7 @@ public class MenuUI : MonoBehaviour
         menuCanvasGroup.interactable = false;
         menuCanvasGroup.blocksRaycasts = false;
         menuTween = menuCanvasGroup.DOFade(1f, fadeInDuration)
+            .From(0f)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {

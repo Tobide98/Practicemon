@@ -3,6 +3,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using WhackAMole;
 
 public class AnswerFeedbackUI : MonoBehaviour
 {
@@ -84,6 +85,7 @@ public class AnswerFeedbackUI : MonoBehaviour
         }
 
         SetResultImage(isCorrect);
+        GameManager.Instance?.PlaySFX(isCorrect ? SFX.SFX_Correct : SFX.SFX_Wrong);
 
         if (canvasGroup != null)
         {
@@ -99,7 +101,7 @@ public class AnswerFeedbackUI : MonoBehaviour
 
         if (canvasGroup != null)
         {
-            feedbackSequence.Append(canvasGroup.DOFade(1f, fadeDuration).SetEase(Ease.OutQuad));
+            feedbackSequence.Append(canvasGroup.DOFade(1f, fadeDuration).From(0f).SetEase(Ease.OutQuad));
         }
 
         if (feedbackRectTransform != null)
@@ -109,7 +111,7 @@ public class AnswerFeedbackUI : MonoBehaviour
 
         feedbackSequence
             .AppendInterval(visibleDuration)
-            .Append(canvasGroup != null ? canvasGroup.DOFade(0f, fadeDuration).SetEase(Ease.InQuad) : DOVirtual.DelayedCall(fadeDuration, () => { }))
+            .Append(canvasGroup != null ? canvasGroup.DOFade(0f, fadeDuration).From(1f).SetEase(Ease.InQuad) : DOVirtual.DelayedCall(fadeDuration, () => { }))
             .OnComplete(() =>
             {
                 HideImmediate();

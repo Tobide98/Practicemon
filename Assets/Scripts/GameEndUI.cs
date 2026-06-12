@@ -2,6 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using WhackAMole;
 
 public class GameEndUI : MonoBehaviour
 {
@@ -132,9 +133,12 @@ public class GameEndUI : MonoBehaviour
             resultImage.enabled = resultImage.sprite != null;
         }
 
+        GameManager.Instance?.PlaySFX(isWin ? SFX.SFX_Win : SFX.SFX_Lose);
+
         if (canvasGroup != null)
         {
             endTween = canvasGroup.DOFade(1f, fadeDuration)
+                .From(0f)
                 .SetEase(Ease.OutQuad)
                 .OnComplete(() =>
                 {
@@ -162,6 +166,7 @@ public class GameEndUI : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         endTween = canvasGroup.DOFade(0f, fadeDuration)
+            .From(1f)
             .SetEase(Ease.InQuad)
             .OnComplete(() =>
             {
@@ -172,6 +177,7 @@ public class GameEndUI : MonoBehaviour
 
     private void HandleReturnButtonPressed()
     {
+        GameManager.Instance?.PlaySFX(SFX.SFX_PositiveClick);
         gameManager?.ReturnToMainMenu();
     }
 }

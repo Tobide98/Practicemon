@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,13 +18,20 @@ public class MonsterUI : MonoBehaviour
     [SerializeField] private bool hideUntilIntro = true;
     [SerializeField] private float introMoveOffsetY = 60f;
     [SerializeField] private float introDuration = 0.35f;
-    [SerializeField] private float idlePunchScale = 0.04f;
-    [SerializeField] private float idlePunchDuration = 0.9f;
+    [SerializeField] private float idleMoveOffsetY = 10f;
+    [SerializeField] private float idleMoveDuration = 0.35f;
+    [SerializeField] private float minIdleLoopDelay = 1f;
+    [SerializeField] private float maxIdleLoopDelay = 1.5f;
+    [SerializeField] private float idleSquashY = 0.95f;
+    [SerializeField] private float idleSquashDuration = 0.08f;
+    [SerializeField] private float attackMoveOffsetX = 0.2f;
+    [SerializeField] private float attackMoveDuration = 0.12f;
     [SerializeField] private float hitBlinkDuration = 0.5f;
     [SerializeField] private float hitPunchScale = 0.18f;
     [SerializeField] private float hpFillTweenDuration = 0.35f;
 
     private Sequence idleLoop;
+    private Sequence attackSequence;
     private Sequence hitFeedback;
     private Tween hpFillTween;
     private Vector3 startPosition;
@@ -84,6 +92,7 @@ public class MonsterUI : MonoBehaviour
     private void OnDisable()
     {
         StopIdleLoop();
+        attackSequence?.Kill();
         hpFillTween?.Kill();
     }
 
@@ -253,7 +262,7 @@ public class MonsterUI : MonoBehaviour
 
         if (canvasGroup != null)
         {
-            introSequence.Join(canvasGroup.DOFade(1f, introDuration).SetEase(Ease.OutQuad));
+            introSequence.Join(canvasGroup.DOFade(1f, introDuration).From(0f).SetEase(Ease.OutQuad));
         }
 
         introSequence
@@ -261,6 +270,41 @@ public class MonsterUI : MonoBehaviour
             .OnComplete(PlayIdleLoop);
 
         return introSequence;
+    }
+
+    public Tween PlayAttack(MonsterUI target, Action onComplete)
+    {
+        if (animatedTarget == null)
+        {
+            onComplete?.Invoke();
+            return null;
+        }
+
+        StopIdleLoop(true);
+        attackSequence?.Kill();
+
+        float direction = 1f;
+        if (target != null)
+        {
+            direction = Mathf.Sign(target.GetAnimatedPosition().x - startPosition.x);
+            if (Mathf.Approximately(direction, 0f))
+            {
+                direction = 1f;
+            }
+        }
+
+        Vector3 attackPosition = startPosition + Vector3.right * direction * attackMoveOffsetX;
+        attackSequence = DOTween.Sequence()
+            .Append(animatedTarget.DOMove(attackPosition, attackMoveDuration).SetEase(Ease.OutQuad))
+            .Append(animatedTarget.DOMove(startPosition, attackMoveDuration).SetEase(Ease.InQuad))
+            .OnComplete(() =>
+            {
+                attackSequence = null;
+                onComplete?.Invoke();
+                PlayIdleLoop();
+            });
+
+        return attackSequence;
     }
 
     public void ResetForNewGame()
@@ -306,9 +350,23 @@ public class MonsterUI : MonoBehaviour
         animatedTarget.localScale = startScale;
 
         idleLoop = DOTween.Sequence()
-            .Append(animatedTarget.DOPunchScale(Vector3.one * idlePunchScale, idlePunchDuration, 2, 0.4f))
-            .AppendInterval(0.2f)
-            .SetLoops(-1);
+            .Append(animatedTarget.DOMove(startPosition + Vector3.up * idleMoveOffsetY, idleMoveDuration).SetEase(Ease.OutQuad))
+            .Append(animatedTarget.DOMove(startPosition, idleMoveDuration).SetEase(Ease.InQuad))
+            .Append(animatedTarget.DOScale(new Vector3(startScale.x, startScale.y * idleSquashY, startScale.z), idleSquashDuration).SetEase(Ease.OutQuad))
+            .Append(animatedTarget.DOScale(startScale, idleSquashDuration).SetEase(Ease.OutQuad))
+            .AppendInterval(GetRandomIdleLoopDelay())
+            .OnComplete(() =>
+            {
+                idleLoop = null;
+                PlayIdleLoop();
+            });
+    }
+
+    private float GetRandomIdleLoopDelay()
+    {
+        float minDelay = Mathf.Min(minIdleLoopDelay, maxIdleLoopDelay);
+        float maxDelay = Mathf.Max(minIdleLoopDelay, maxIdleLoopDelay);
+        return UnityEngine.Random.Range(minDelay, maxDelay);
     }
 
     public void StopIdleLoop(bool resetTransform = true)
@@ -354,6 +412,11 @@ public class MonsterUI : MonoBehaviour
             animatedTarget.position = startPosition;
             animatedTarget.localScale = startScale;
         }
+    }
+
+    public Vector3 GetAnimatedPosition()
+    {
+        return animatedTarget != null ? animatedTarget.position : transform.position;
     }
 
     private void SaveDefaultTransform()

@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using WhackAMole;
 
 public class AnswerButton : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class AnswerButton : MonoBehaviour
     [SerializeField] private Image buttonImage;
     [SerializeField] private Color correctColor = Color.green;
     [SerializeField] private Color wrongColor = Color.red;
+    [SerializeField] private Color selectedColor = Color.yellow;
 
     private Answer currentAnswer;
     private Action<AnswerButton, Answer> onSelected;
@@ -104,6 +106,14 @@ public class AnswerButton : MonoBehaviour
         }
     }
 
+    public void ShowSelected()
+    {
+        if (buttonImage != null)
+        {
+            buttonImage.color = selectedColor;
+        }
+    }
+
     public void ResetVisual()
     {
         if (buttonImage != null)
@@ -116,6 +126,7 @@ public class AnswerButton : MonoBehaviour
     {
         if (currentAnswer != null)
         {
+            GameManager.Instance?.PlaySFX(SFX.SFX_PositiveClick);
             onSelected?.Invoke(this, currentAnswer);
         }
     }

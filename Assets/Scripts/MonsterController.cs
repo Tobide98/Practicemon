@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using DG.Tweening;
+using WhackAMole;
 
 public class MonsterController : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class MonsterController : MonoBehaviour
     public int CurrentHp => currentHp;
     public int BaseAttack => baseAttack;
     public bool IsDefeated => currentHp <= 0;
+    public MonsterUI MonsterUI => monsterUI;
 
     public event Action<MonsterController> Defeated;
 
@@ -61,7 +63,16 @@ public class MonsterController : MonoBehaviour
             return;
         }
 
-        target.TakeDamage(baseAttack);
+        if (monsterUI == null)
+        {
+            target.TakeDamage(baseAttack);
+            return;
+        }
+
+        monsterUI.PlayAttack(target.MonsterUI, () =>
+        {
+            target.TakeDamage(baseAttack);
+        });
     }
 
     public void TakeDamage(int damage)
@@ -78,6 +89,7 @@ public class MonsterController : MonoBehaviour
         if (monsterUI != null)
         {
             monsterUI.PlayHitFeedback();
+            GameManager.Instance?.PlaySFX(SFX.SFX_Hit);
         }
 
         PlayHitParticle();
